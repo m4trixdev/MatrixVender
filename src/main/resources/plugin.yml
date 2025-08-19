@@ -1,0 +1,48 @@
+name: MatrixVender
+version: 1.0.0
+main: br.com.matrixdev.matrixvender.MatrixVender
+author: matrixdev
+website: https://github.com/m4trixdev
+description: Plugin de venda
+api-version: 1.13
+depend: [Vault]
+softdepend: [PlayerPoints, yPoints, JH_Shop, AtlasEconomiaSecundaria, yCash, LegendaryEconomy, NextEconomy]
+
+commands:
+  vender:
+    description: Menu de venda de drops dos mobs
+    aliases: [sell, venda, drops]
+    usage: /<command>
+    permission: matrixvender.use
+
+permissions:
+  matrixvender.use:
+    description: Permite usar o comando /vender
+    default: true
+  matrixvender.admin:
+    description: Acesso total ao plugin
+    default: op
+  matrixvender.slot.10:
+    description: 10 slots de venda (padrão)
+    default: true
+  matrixvender.slot.20:
+    description: 20 slots de venda
+    default: false
+  matrixvender.slot.30:
+    description: 30 slots de venda
+    default: false
+  matrixvender.slot.40:
+    description: 40 slots de venda
+    default: false
+  matrixvender.multiplier.1.2:
+    description: Multiplicador 1.2x para venda
+    default: false
+  matrixvender.multiplier.1.5:
+    description: Multiplicador 1.5x para venda
+    default: false
+  matrixvender.multiplier.2.0:
+    description: Multiplicador 2.0x para venda
+    default: false
+  matrixvender.multiplier.3.0:
+    description: Multiplicador 3.0x para venda
+    default: false

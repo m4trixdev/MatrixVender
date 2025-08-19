@@ -1,0 +1,131 @@
+# MatrixVender - Configuracao
+
+# Configuracoes gerais
+configuracao:
+  prefixo: "&2&lMATRIX: &f"
+  debug: false
+  auto-save: 300
+
+# Configuracoes de notificacao
+notificacoes:
+  tipo-venda: "chat"
+  chat:
+    ativado: true
+    formato: "&aVoce vendeu {quantidade} itens por ${valor}"
+  actionbar:
+    ativado: false
+    formato: "&aVenda: {quantidade} itens por ${valor}"
+  title:
+    ativado: false
+    titulo: "&aVenda Realizada!"
+    subtitulo: "&e{quantidade} itens por ${valor}"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+
+# Configuracoes de venda
+venda:
+  slots-padrao: 9
+  incremento-slots: 9
+  painel-bloqueado: "STAINED_GLASS_PANE:15"
+  
+  # Itens vendaveis (drops dos mobs)
+  itens:
+    # Zombie drops
+    rotten_flesh: 10.0
+    iron_ingot: 25.0
+    carrot: 8.0
+    potato: 8.0
+    
+    # Skeleton drops
+    bone: 15.0
+    arrow: 8.0
+    bow: 50.0
+    
+    # Spider drops
+    string: 12.0
+    spider_eye: 20.0
+    
+    # Creeper drops
+    sulphur: 16.0
+    
+    # Enderman drops
+    ender_pearl: 50.0
+    
+    # Blaze drops
+    blaze_rod: 100.0
+    
+    # Ghast drops
+    ghast_tear: 80.0
+    gunpowder: 16.0
+    
+    # Slime drops
+    slime_ball: 18.0
+    
+    # Magma Cube drops
+    magma_cream: 22.0
+    
+    # Animal drops
+    raw_beef: 15.0
+    raw_chicken: 10.0
+    pork: 12.0
+    leather: 20.0
+    feather: 5.0
+    wool: 15.0
+    egg: 8.0
+    rabbit: 12.0
+    rabbit_hide: 8.0
+    mutton: 14.0
+    
+    # Ores e gems
+    coal: 5.0
+    iron_ingot: 25.0
+    gold_ingot: 30.0
+    diamond: 100.0
+    emerald: 80.0
+    lapis_lazuli: 15.0
+    redstone: 10.0
+    quartz: 20.0
+    glowstone_dust: 12.0
+
+# Multiplicadores de preco
+multiplicadores:
+  "1.0": 1.0
+  "1.2": 1.2
+  "1.5": 1.5
+  "2.0": 2.0
+  "3.0": 3.0
+
+# Sons
+sons:
+  menu-abrir: "BLOCK_NOTE_BLOCK_PLING"
+  venda-sucesso: "ENTITY_PLAYER_LEVELUP"
+  venda-erro: "BLOCK_NOTE_BLOCK_BASS"
+  item-colocado: "ENTITY_CHICKEN_EGG"
+  menu-fechar: "BLOCK_CHEST_CLOSE"
+
+# Mensagens personalizaveis
+mensagens:
+  menu-titulo: "&8Vender"
+  slot-bloqueado: "&cSlot Bloqueado"
+  slot-bloqueado-lore: "&7Adquira mais slots"
+  info-titulo: "&aMenu de Venda"
+  info-lore:
+    - "&7Coloque os itens nos slots"
+    - "&7para vender ao fechar o menu"
+    - ""
+    - "&7Slots disponiveis: &f{slots}"
+    - "&7Multiplicador: &f{multiplier}x"
+  ajuda:
+    - "&aAjuda - Menu de Venda"
+    - "&7• Coloque itens nos slots liberados"
+    - "&7• Feche o menu para vender tudo"
+    - "&7• Adquira mais slots com permissoes"
+    - "&7• Multiplicadores aumentam o preco"
+  item-nao-vendavel: "&cEste item nao pode ser vendido!"
+  item-colocado: "&aItem colocado para venda!"
+  item-info: "&eItem colocado (nao vendavel)"
+  venda-sucesso: "&aVoce vendeu {quantidade} itens por ${valor}"
+  itens-devolvidos: "&e{quantidade} itens que nao podem ser vendidos foram devolvidos"
+  ajuda-titulo: "&eAjuda"
+  fechar-menu: "&cFechar Menu"
