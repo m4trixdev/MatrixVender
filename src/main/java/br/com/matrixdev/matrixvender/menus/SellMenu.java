@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.util.*;
 
 public class SellMenu implements Listener {
@@ -24,7 +23,7 @@ public class SellMenu implements Listener {
 
     public SellMenu(MatrixVender plugin) {
         this.plugin = plugin;
-        this.sellableItems = new HashMap<>();
+        this.sellableItems = new HashMap<String, Double>();
         loadSellableItems();
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -52,9 +51,11 @@ public class SellMenu implements Listener {
         ItemStack info = new ItemStack(Material.EMERALD);
         ItemMeta meta = info.getItemMeta();
         meta.setDisplayName(MessageUtil.color(plugin.getConfiguration().getConfig().getString("mensagens.info-titulo", "&aMenu de Venda")));
-        List<String> lore = new ArrayList<>();
+        List<String> lore = new ArrayList<String>();
+        double multiplier = getItemMultiplier(player);
         for (String line : plugin.getConfiguration().getConfig().getStringList("mensagens.info-lore")) {
-            line = line.replace("{slots}", String.valueOf(maxSlots)).replace("{multiplier}", String.valueOf(getItemMultiplier(player)));
+            String mstr = (multiplier == (int) multiplier) ? String.valueOf((int) multiplier) : String.valueOf(multiplier);
+            line = line.replace("{slots}", String.valueOf(maxSlots)).replace("{multiplier}", mstr);
             lore.add(MessageUtil.color(line));
         }
         meta.setLore(lore);
@@ -66,7 +67,10 @@ public class SellMenu implements Listener {
         ItemStack help = new ItemStack(Material.BOOK);
         ItemMeta meta = help.getItemMeta();
         meta.setDisplayName(MessageUtil.color("&eAjuda"));
-        meta.setLore(Arrays.asList(MessageUtil.color("&7Coloque itens nos slots"), MessageUtil.color("&7e feche o menu para vender")));
+        List<String> lore = new ArrayList<String>();
+        lore.add(MessageUtil.color("&7Coloque itens nos slots"));
+        lore.add(MessageUtil.color("&7e feche o menu para vender"));
+        meta.setLore(lore);
         help.setItemMeta(meta);
         return help;
     }
@@ -82,20 +86,22 @@ public class SellMenu implements Listener {
     private ItemStack createBlockedSlotItem() {
         Material blockedMaterial;
         short data = 0;
-        try { 
-            blockedMaterial = Material.valueOf("BLACK_STAINED_GLASS_PANE"); 
-        } catch (Exception e) { 
-            try { 
-                blockedMaterial = Material.valueOf("STAINED_GLASS_PANE"); 
-                data = 15; 
-            } catch (Exception ex) { 
-                blockedMaterial = Material.GLASS; 
-            } 
+        try {
+            blockedMaterial = Material.valueOf("BLACK_STAINED_GLASS_PANE");
+        } catch (Exception e) {
+            try {
+                blockedMaterial = Material.valueOf("STAINED_GLASS_PANE");
+                data = 15;
+            } catch (Exception ex) {
+                blockedMaterial = Material.GLASS;
+            }
         }
         ItemStack blocked = new ItemStack(blockedMaterial, 1, data);
         ItemMeta meta = blocked.getItemMeta();
         meta.setDisplayName(MessageUtil.color(plugin.getConfiguration().getConfig().getString("mensagens.slot-bloqueado", "&cSlot Bloqueado")));
-        meta.setLore(Collections.singletonList(MessageUtil.color(plugin.getConfiguration().getConfig().getString("mensagens.slot-bloqueado-lore", "&7Adquira mais slots"))));
+        List<String> lore = new ArrayList<String>();
+        lore.add(MessageUtil.color(plugin.getConfiguration().getConfig().getString("mensagens.slot-bloqueado-lore", "&7Adquira mais slots")));
+        meta.setLore(lore);
         blocked.setItemMeta(meta);
         return blocked;
     }
@@ -113,8 +119,7 @@ public class SellMenu implements Listener {
         if (player.hasPermission("matrixvender.slot.40")) return 36;
         if (player.hasPermission("matrixvender.slot.30")) return 27;
         if (player.hasPermission("matrixvender.slot.20")) return 18;
-        int defaultSlots = plugin.getConfiguration().getConfig().getInt("venda.slots-padrao", 9);
-        return defaultSlots;
+        return plugin.getConfiguration().getConfig().getInt("venda.slots-padrao", 9);
     }
 
     private double getItemMultiplier(Player player) {
@@ -129,25 +134,18 @@ public class SellMenu implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
-        
         String inventoryTitle = MessageUtil.stripColors(event.getView().getTitle());
         String menuTitle = MessageUtil.stripColors(plugin.getConfiguration().getConfig().getString("mensagens.menu-titulo", "&8Vender"));
-        
         if (!inventoryTitle.equalsIgnoreCase(menuTitle)) return;
-        
         int slot = event.getRawSlot();
         int maxSlots = getMaxSellSlots(player);
-        
         if (slot == 4 || slot == 49 || slot == 53) {
             event.setCancelled(true);
             if (slot == 53) player.closeInventory();
             return;
         }
-        
         if (slot >= 9 && slot < 9 + maxSlots && slot < 45) {
             ItemStack cursorItem = event.getCursor();
-            ItemStack clickedItem = event.getCurrentItem();
-            
             if (cursorItem != null && cursorItem.getType() != Material.AIR) {
                 if (!isSellableItem(cursorItem)) {
                     event.setCancelled(true);
@@ -155,14 +153,9 @@ public class SellMenu implements Listener {
                     return;
                 }
             }
-            
             return;
         }
-        
-        if (slot >= 54) {
-            return;
-        }
-        
+        if (slot >= 54) return;
         event.setCancelled(true);
     }
 
@@ -170,16 +163,12 @@ public class SellMenu implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player)) return;
         Player player = (Player) event.getPlayer();
-        
         String inventoryTitle = MessageUtil.stripColors(event.getView().getTitle());
         String menuTitle = MessageUtil.stripColors(plugin.getConfiguration().getConfig().getString("mensagens.menu-titulo", "&8Vender"));
-        
         if (!inventoryTitle.equalsIgnoreCase(menuTitle)) return;
-        
-        List<ItemStack> itemsToSell = new ArrayList<>();
-        List<ItemStack> itemsToReturn = new ArrayList<>();
+        List<ItemStack> itemsToSell = new ArrayList<ItemStack>();
+        List<ItemStack> itemsToReturn = new ArrayList<ItemStack>();
         int maxSlots = getMaxSellSlots(player);
-        
         for (int i = 9; i < 9 + maxSlots && i < 45; i++) {
             ItemStack item = event.getInventory().getItem(i);
             if (item != null && item.getType() != Material.AIR) {
@@ -190,16 +179,14 @@ public class SellMenu implements Listener {
                 }
             }
         }
-        
         if (!itemsToSell.isEmpty()) sellItems(player, itemsToSell);
         if (!itemsToReturn.isEmpty()) returnItems(player, itemsToReturn);
     }
 
     private void sellItems(Player player, List<ItemStack> items) {
-        double totalValue = 0;
+        double totalValue = 0.0;
         int totalSold = 0;
         double multiplier = getItemMultiplier(player);
-        
         for (ItemStack item : items) {
             String itemKey = item.getType().name().toUpperCase();
             Double basePrice = sellableItems.get(itemKey);
@@ -208,7 +195,6 @@ public class SellMenu implements Listener {
                 totalSold += item.getAmount();
             }
         }
-        
         if (totalSold > 0) {
             plugin.getEconomyHook().depositPlayer(player, totalValue);
             sendSaleNotification(player, totalSold, totalValue);
@@ -239,27 +225,22 @@ public class SellMenu implements Listener {
     private void sendSaleNotification(Player player, int quantity, double value) {
         String type = plugin.getConfiguration().getConfig().getString("notificacoes.tipo-venda", "chat");
         String formattedValue = plugin.getEconomyHook().format(value);
-        
-        switch (type.toLowerCase()) {
-            case "actionbar":
-                if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.actionbar.ativado", false)) {
-                    String msg = plugin.getConfiguration().getConfig().getString("notificacoes.actionbar.formato", "&aVenda: {quantidade} itens por ${valor}");
-                    MessageUtil.sendActionBar(player, msg.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue));
-                }
-                break;
-            case "title":
-                if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.title.ativado", false)) {
-                    String title = plugin.getConfiguration().getConfig().getString("notificacoes.title.titulo", "&aVenda Realizada!");
-                    String subtitle = plugin.getConfiguration().getConfig().getString("notificacoes.title.subtitulo", "&e{quantidade} itens por ${valor}");
-                    player.sendTitle(MessageUtil.color(title), MessageUtil.color(subtitle.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue)));
-                }
-                break;
-            default:
-                if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.chat.ativado", true)) {
-                    String msg = plugin.getConfiguration().getConfig().getString("notificacoes.chat.formato", "&aVoce vendeu {quantidade} itens por ${valor}");
-                    MessageUtil.sendMessage(player, msg.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue));
-                }
-                break;
+        if ("actionbar".equalsIgnoreCase(type)) {
+            if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.actionbar.ativado", false)) {
+                String msg = plugin.getConfiguration().getConfig().getString("notificacoes.actionbar.formato", "&aVenda: {quantidade} itens por ${valor}");
+                MessageUtil.sendActionBar(player, msg.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue));
+            }
+        } else if ("title".equalsIgnoreCase(type)) {
+            if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.title.ativado", false)) {
+                String title = plugin.getConfiguration().getConfig().getString("notificacoes.title.titulo", "&aVenda Realizada!");
+                String subtitle = plugin.getConfiguration().getConfig().getString("notificacoes.title.subtitulo", "&e{quantidade} itens por ${valor}");
+                player.sendTitle(MessageUtil.color(title), MessageUtil.color(subtitle.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue)));
+            }
+        } else {
+            if (plugin.getConfiguration().getConfig().getBoolean("notificacoes.chat.ativado", true)) {
+                String msg = plugin.getConfiguration().getConfig().getString("notificacoes.chat.formato", "&aVoce vendeu {quantidade} itens por ${valor}");
+                MessageUtil.sendMessage(player, msg.replace("{quantidade}", String.valueOf(quantity)).replace("{valor}", formattedValue));
+            }
         }
     }
 }
